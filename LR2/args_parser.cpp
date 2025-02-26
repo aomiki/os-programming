@@ -15,10 +15,10 @@ struct cmd_params {
 std::map<program_command, cmd_params> cmdToParams = 
 {
     { help, { true, 0, { "--help", "-h" }, {}, "shows help page" } },
-    { copy, { false, 2, { "copy", "cp" }, {"src", "dest"}, "copy files from one place to another" } },
-    { move, { false, 2, { "move", "mv" }, {"src", "dest"}, "move files from one place to another" } },
-    { info, { false, 1, { "info", "i" }, {"filepath"}, "show information about the file" } },
-    { chmod, { false, 1, { "chmod" }, {"filepath"}, "change file permissions" } }
+    { copy, { false, 2, { "copy", "cp" }, { "src", "dest" }, "copy files from one place to another" } },
+    { move, { false, 2, { "move", "mv" }, { "src", "dest" }, "move files from one place to another" } },
+    { info, { false, 1, { "info", "i" }, { "filepath" }, "show information about the file" } },
+    { chmod, { false, 2, { "chmod" }, { "filepath", "mode" }, "change file permissions" } }
 };
 
 bool compare_command_str(std::vector<std::string> expected, const char* str)
