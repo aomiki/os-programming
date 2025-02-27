@@ -169,6 +169,7 @@ int main(int argc, char const *argv[])
     if (err.is_error)
     {
         bad_args(err.err_msg);
+        return 1;
     }
 
     if (args.command == help)
