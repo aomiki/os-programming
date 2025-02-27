@@ -15,6 +15,18 @@ void bad_args(std::string msg = "")
     std::cout << std::endl;
 }
 
+void runtime_err(std::string msg = "")
+{
+    std::cout << "runtime error";
+
+    if (msg != "")
+    {
+        std::cout << " (" << msg << ")";
+    }
+
+    std::cout << std::endl;
+}
+
 std::string command_to_string(program_command cmd)
 {
     switch (cmd)
@@ -63,7 +75,12 @@ int exec_copy(program_arguments args)
         return 1;
     }
 
-    copy_file(src, dest);
+    if(!copy_file(src, dest))
+    {
+        runtime_err("access error");
+        return 1;
+    }
+
     return 0;
 }
 
@@ -84,7 +101,12 @@ int exec_move(program_arguments args)
         return 1;
     }
 
-    move_file(src, dest);
+    if(!move_file(src, dest))
+    {
+        runtime_err("access error");
+        return 1;
+    }
+
     return 0;
 }
 
@@ -98,10 +120,15 @@ int exec_info(program_arguments args)
         return 1;
     }
 
-    file_info info = get_file_info(file);
+    file_info info;
+    if(!get_file_info(file, info))
+    {
+        runtime_err("access error");
+        return 1;
+    }
 
     std::cout << "Size: " << info.sizeBytes << " Bytes" << std::endl;
-    std::cout << "Permissions: " << std::oct << info.permissions << " (" << std::bitset<8>(info.permissions) << ")" << std::endl;
+    std::cout << "Permissions: " << std::oct << info.permissions << " (" << std::bitset<9>(info.permissions) << ")" << std::endl;
     std::cout << "Last modified time: " << ctime(&info.last_changed) << std::endl;
 
     return 0;
@@ -119,7 +146,11 @@ int exec_chmod(program_arguments args)
 
     int mode = std::stoi(args.pos_args[1], nullptr, 2);
 
-    change_permissions(file, mode);
+    if(!change_permissions(file, mode))
+    {
+        bad_args("access error");
+        return 1;
+    }
 
     return 0;
 }

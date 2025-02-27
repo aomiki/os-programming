@@ -10,28 +10,46 @@ bool exists(std::string filepath)
     return stat(filepath.c_str(), &buff) == 0;
 }
 
-file_info get_file_info(std::string filepath)
+bool get_file_info(std::string filepath, file_info& info_buff)
 {
     struct stat buff;
-    stat(filepath.c_str(), &buff);
+    if(stat(filepath.c_str(), &buff) == -1)
+    {
+        return false;
+    }
 
-    file_info info;
-    info.sizeBytes = buff.st_size;
-    info.permissions = buff.st_mode;
-    info.last_changed = buff.st_mtime;    
+    info_buff.sizeBytes = buff.st_size;
+    info_buff.permissions = buff.st_mode;
+    info_buff.last_changed = buff.st_mtime;
 
-    return info;
+    return true;
 }
 
-void change_permissions(std::string filepath, mode_t mode)
+bool change_permissions(std::string filepath, mode_t mode)
 {
-    chmod(filepath.c_str(), mode);
+    if(chmod(filepath.c_str(), mode) == -1)
+    {
+        return false;
+    }
+
+    return true;
 }
 
-void copy_file(std::string src, std::string dest)
+bool copy_file(std::string src, std::string dest)
 {
     int srcDesc = open(src.c_str(), O_RDONLY, 0);
+
+    if (srcDesc == -1)
+    {
+        return false;
+    }
+
     int destDesc = open(dest.c_str(), O_WRONLY | O_CREAT, 0644);
+
+    if (destDesc == -1)
+    {
+        return false;
+    }
 
     // good values should fit to blocksize, like 1024 or 4096
     char buf[BUFSIZ];
@@ -44,9 +62,16 @@ void copy_file(std::string src, std::string dest)
 
     close(srcDesc);
     close(destDesc);
+
+    return true;
 }
 
-void move_file(std::string src, std::string dest)
+bool move_file(std::string src, std::string dest)
 {
-    rename(src.c_str(), dest.c_str());
+    if(rename(src.c_str(), dest.c_str()) == -1)
+    {
+        return false;
+    }
+
+    return true;
 }
