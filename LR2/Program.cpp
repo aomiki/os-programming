@@ -155,8 +155,6 @@ int exec_chmod(program_arguments args)
     return 0;
 }
 
-/// @brief 11. Написать функцию вычисления среднего значения 
-/// элементов заданного одномерного массива.
 /// @param argc Number of command-line arguments
 /// @param argv Command-line arguments, where argv[0] is name of the program.
 /// @return 
