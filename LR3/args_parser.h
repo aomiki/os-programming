@@ -10,7 +10,8 @@ struct parse_error
 
 enum program_command {
     none = 0,
-    help = 1
+    help = 1,
+    file = 2
 };
 
 struct program_arguments {

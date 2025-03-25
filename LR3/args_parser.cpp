@@ -14,7 +14,8 @@ struct cmd_params {
 
 std::map<program_command, cmd_params> cmdToParams = 
 {
-    { help, { true, 0, { "--help", "-h" }, {}, "shows help page" } }
+    { help, { true, 0, { "--help", "-h" }, {}, "shows help page" } },
+    { file, { true, 0, { "--file", "-f" }, {}, "read input from file and write output to file" } }
 };
 
 bool compare_command_str(std::vector<std::string> expected, const char* str)
