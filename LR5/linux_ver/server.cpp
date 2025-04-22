@@ -7,7 +7,6 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include <sys/eventfd.h>
 #include "shared_objects.h"
 
 std::atomic<bool> isInterrupted = false;
@@ -98,7 +97,7 @@ int main()
             }
             else
             {
-                std::cout << "Server disconnected" << std::endl;
+                std::cout << "client disconnected" << std::endl;
             }
 
             isInterrupted = true;

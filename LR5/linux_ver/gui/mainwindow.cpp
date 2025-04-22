@@ -3,7 +3,6 @@
 #include "shared_objects.h"
 #include <QScrollBar>
 #include <QColorDialog>
-#include <signal.h>
 #include <sys/stat.h>
 #include <iostream>
 #include <filesystem>
@@ -25,7 +24,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     ui->label_log->setText("");
 
-    setClientDisconnectedState();
+    setClientsStateNoneConnected();
 
     auto t = std::time(nullptr);
     auto tm = *std::localtime(&t);
@@ -41,20 +40,21 @@ MainWindow::MainWindow(QWidget *parent)
 
     if (ret_status == -1 && errno != EEXIST)
     {
-        log(std::format("error creating named pipe: {0}.\n", std::to_string(errno)));
+        std::cout << "error creating named pipe: " << errno << std::endl;
     }
 
-    log((QString)"creating client...");
-    ret_status = system("alacritty --title client -e ./client.out &");
-    if(ret_status == -1)
-    {
-        log(std::format("client creation failed ({0}).\n", std::to_string(errno)));
-    }
+    sem_unlink(semaphore_name.c_str()); //clear semaphore
+	sem_handle = sem_open(semaphore_name.c_str(), O_CREAT, S_IWUSR | S_IRUSR | S_IRGRP | S_IROTH, 0);
+
+	if(sem_handle == SEM_FAILED)
+	{
+		printf("failed to open semaphore (%d).\n", errno);
+	}
+
     connect(ui->comboBox_selectedLog, SIGNAL(currentIndexChanged(int)), this, SLOT(switchLogView(int)));
     connect(ui->button_saveLog, SIGNAL(clicked()), this, SLOT(buttonSaveClicked()));
-    connect(ui->pushButton_sendCommand, SIGNAL(clicked()), this, SLOT(buttonSendCommandClicked()));
-    connect(ui->pushButton_bg_colorDialog, SIGNAL(clicked()), this, SLOT(chooseBgColorClicked()));
-    connect(ui->pushButton_connectToClient, SIGNAL(clicked()), this, SLOT(buttonConnectClicked()));
+    connect(ui->pushButton_receiveCommand, SIGNAL(clicked()), this, SLOT(buttonReceiveCommandClicked()));
+    connect(ui->pushButton_spawnClients, SIGNAL(clicked()), this, SLOT(buttonSpawnClicked()));
 }
 
 void MainWindow::switchLogView(int index)
@@ -82,72 +82,110 @@ void MainWindow::switchLogView(int index)
     }
 }
 
-void MainWindow::buttonConnectClicked()
+void MainWindow::buttonSpawnClicked()
 {
+    clients_num = ui->spinBox_clientsNum->value();
+
+    log(std::format("creating {0} clients...\n", std::to_string(clients_num)));
+
+    labels = new QLabel*[clients_num];
+    for (size_t i = 0; i < clients_num; i++)
+    {
+        std::cout << "Creating client " << i << std::endl;
+
+        int ret_status = system(("alacritty --title client -e ./client.out " + std::to_string(i) + "&").c_str());
+        if(ret_status == -1)
+        {
+            log(std::format("client {0} creation failed ({1}).\n", i, std::to_string(errno)));
+            continue;
+        }
+
+        labels[i] = nullptr;
+    }
+
+    log((QString)"clients created.");
+    setClientStateSomeConnected();
+}
+
+void MainWindow::buttonReceiveCommandClicked()
+{
+    // Release ownership of the semaphore object
+    if (sem_post(sem_handle) == -1)
+    {
+        log(std::format("error releasing semaphore ({0}).\n", std::to_string(errno)));
+        return;
+    }
+
     log((QString)"waiting for connection...");
 
     // wait for someone to connect to the pipe
-    pipe_fd = open(pipe_name.c_str(), O_WRONLY);
+    int pipe_fd = open(pipe_name.c_str(), O_RDONLY);
 
     if (pipe_fd == -1)
     {
         log(std::format("opening pipe failed ({0}).\n", std::to_string(errno)));
+        return;
     }
 
-    setClientConnectedState();
+    log((QString)"client connected");
 
-    log((QString)"client connected.");
-}
+    // Read from the pipe.
+    unsigned char message[2];
 
-void MainWindow::buttonSendCommandClicked()
-{
-    QString user_choice = ui->comboBox_clientCommandType->currentText();
-    CommandType clientCommand = Null;
+    int ret_status = read(pipe_fd, message, sizeof(unsigned char) * 2);
 
-    if (user_choice == "Reset")
+    if (ret_status != sizeof(unsigned char) * 2)
     {
-        clientCommand = ResetColor;
-        log((QString)"sending reset command");
-    }
-    else if (user_choice == "Set color")
-    {
-        clientCommand = SetColor;
-        log((QString)"sending set color command");
-    }
-
-    unsigned char msg[4];
-    msg[0] = clientCommand;
-    msg[1] = curr_bgColor[0];
-    msg[2] = curr_bgColor[1];
-    msg[3] = curr_bgColor[2];
-
-    int ret_status = write(pipe_fd, msg, sizeof(unsigned char) * 4);
-
-    if (ret_status != sizeof(unsigned char) * 4)
-    {
-        if (errno == EPIPE)
+        if (ret_status == -1)
         {
-            log((QString)"client closed");
-            setClientDisconnectedState();
+            log(std::format("reading from pipe failed ({0}).\n", std::to_string(errno)));
         }
         else
         {
-            log(std::format("writing to pipe failed ({0}).\n", std::to_string(errno)));
+            log((QString)"client disconnected");
         }
+    }
+
+    log((QString)"message received");
+
+    ret_status = ::close(pipe_fd);
+
+    if(ret_status == -1)
+    {
+        log(std::format("closing pipe failed ({0}).\n", std::to_string(errno)));
         return;
     }
-    log((QString)"command sent");
-}
 
-void MainWindow::chooseBgColorClicked()
-{
-    QColorDialog colorPickerDialog;
+    std::string str_status;
+    switch (message[1])
+    {
+        case ShredingerStatus::Null:
+            str_status = "null";
+            break;
+        case ShredingerStatus::Undefined:
+            str_status = "not defined";
+            break;
+        case ShredingerStatus::Alive:
+            str_status = "alive";
+            break;
+        case ShredingerStatus::Dead:
+            str_status = "dead";
+            break;
+        default:
+            str_status = "uhm";
+            break;
+    }
 
-    QColor chosenColor = colorPickerDialog.getColor(QColor(curr_bgColor[0], curr_bgColor[1], curr_bgColor[2]));
+    if (labels[message[0]] == nullptr)
+    {
+        QLabel* status_label = new QLabel("", ui->scrollAreaWidgetContents_statuses);
+        labels[message[0]] = status_label;
 
-    curr_bgColor[0] = chosenColor.red();
-    curr_bgColor[1] = chosenColor.green();
-    curr_bgColor[2] = chosenColor.blue();
+        ui->scrollAreaWidgetContents_statuses->layout()->addWidget(status_label);
+        status_label->show();
+    }
+
+    labels[message[0]]->setText(QString::fromStdString(std::format("client {0} | status: {1}\n", std::to_string(message[0]), str_status)));
 }
 
 void MainWindow::buttonSaveClicked()
@@ -177,17 +215,16 @@ void MainWindow::updateLogList()
         ui->comboBox_selectedLog->addItem(QString::fromStdString(entry.path()));
 }
 
-void MainWindow::setClientConnectedState()
+void MainWindow::setClientsStateNoneConnected()
 {
-    ui->label_clientConn->setText("yes");
-    ui->pushButton_sendCommand->setDisabled(false);
-    ui->pushButton_connectToClient->setDisabled(true);
+    ui->pushButton_receiveCommand->setDisabled(true);
+    ui->pushButton_spawnClients->setDisabled(false);
 }
 
-void MainWindow::setClientDisconnectedState()
+void MainWindow::setClientStateSomeConnected()
 {
-    ui->pushButton_sendCommand->setDisabled(true);
-    ui->label_clientConn->setText("no");
+    ui->pushButton_receiveCommand->setDisabled(false);
+    ui->pushButton_spawnClients->setDisabled(true);
 }
 
 void MainWindow::log(const std::string str)

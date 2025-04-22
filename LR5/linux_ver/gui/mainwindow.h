@@ -1,7 +1,9 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include <semaphore.h>
 #include <QMainWindow>
+#include <QLabel>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -18,22 +20,24 @@ public:
     ~MainWindow();
 
 public slots:
-    void buttonSendCommandClicked();
+    void buttonReceiveCommandClicked();
     void buttonSaveClicked();
-    void buttonConnectClicked();
-    void chooseBgColorClicked();
+    void buttonSpawnClicked();
     void switchLogView(int index);
 
 private:
     int pipe_fd = 0;
-    unsigned char curr_bgColor[3] = {255, 255, 255};
+    sem_t* sem_handle;
     std::string curr_log_filename = "";
     QString curr_log = "";
     bool curr_log_selected = true;
+    QLabel** labels;
+    unsigned clients_num;
+
+    void setClientsStateNoneConnected();
+    void setClientStateSomeConnected();
 
     void updateLogList();
-    void setClientConnectedState();
-    void setClientDisconnectedState();
     void log(const std::string str);
     void log(const QString txt);
     Ui::MainWindow *ui;
