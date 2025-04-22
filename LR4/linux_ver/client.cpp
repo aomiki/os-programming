@@ -71,7 +71,7 @@ int main()
 			}
 
 			isInterrupted = true;
-			continue;			
+			continue; 
         }
 
 		CommandType command = (CommandType)msg[0];
