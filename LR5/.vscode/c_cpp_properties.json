@@ -1,0 +1,23 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "/usr/include/qt6",
+                "/usr/include/qt/QtWidgets",
+                "/usr/include/qt6",
+                "/opt/cuda/targets/x86_64-linux/include"
+            ],
+            "defines": [
+                "CUDA_IMPL",
+                "LR1"
+            ],
+            "compilerPath": "/usr/bin/clang",
+            "cStandard": "c17",
+            "intelliSenseMode": "linux-clang-x64",
+            "cppStandard": "c++23"
+        }
+    ],
+    "version": 4
+}
