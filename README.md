@@ -1,5 +1,7 @@
 # os-programming
 
+Programming against linux syscalls and Windows API
+
 ## LR1
 Calc average in array
 
