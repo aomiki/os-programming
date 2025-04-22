@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>700</width>
-    <height>858</height>
+    <height>860</height>
    </rect>
   </property>
   <property name="maximumSize">
@@ -25,7 +25,78 @@
    </property>
    <layout class="QVBoxLayout" name="verticalLayout_3">
     <item>
+     <widget class="QSpinBox" name="spinBox_clientsNum">
+      <property name="styleSheet">
+       <string notr="true">color: rgb(56, 66, 255);</string>
+      </property>
+      <property name="prefix">
+       <string>clients number: </string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="pushButton_spawnClients">
+      <property name="styleSheet">
+       <string notr="true">border-color: rgb(0, 0, 0);
+background-color: rgb(151, 174, 255);</string>
+      </property>
+      <property name="text">
+       <string>Spawn clients</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QScrollArea" name="scrollArea_statuses">
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>200</height>
+       </size>
+      </property>
+      <property name="baseSize">
+       <size>
+        <width>0</width>
+        <height>0</height>
+       </size>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color: rgb(56, 66, 255);</string>
+      </property>
+      <property name="widgetResizable">
+       <bool>true</bool>
+      </property>
+      <widget class="QWidget" name="scrollAreaWidgetContents_statuses">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>688</width>
+         <height>200</height>
+        </rect>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout"/>
+      </widget>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="pushButton_receiveCommand">
+      <property name="styleSheet">
+       <string notr="true">border-color: rgb(0, 0, 0);
+background-color: rgb(151, 174, 255);</string>
+      </property>
+      <property name="text">
+       <string>Receive status</string>
+      </property>
+     </widget>
+    </item>
+    <item>
      <widget class="QScrollArea" name="scrollArea_log">
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>400</height>
+       </size>
+      </property>
       <property name="widgetResizable">
        <bool>true</bool>
       </property>
@@ -35,75 +106,10 @@
          <x>0</x>
          <y>0</y>
          <width>688</width>
-         <height>819</height>
+         <height>400</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_2">
-        <item>
-         <widget class="QSpinBox" name="spinBox_clientsNum">
-          <property name="styleSheet">
-           <string notr="true">color: rgb(56, 66, 255);</string>
-          </property>
-          <property name="prefix">
-           <string>clients number: </string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="pushButton_spawnClients">
-          <property name="styleSheet">
-           <string notr="true">border-color: rgb(0, 0, 0);
-background-color: rgb(151, 174, 255);</string>
-          </property>
-          <property name="text">
-           <string>Spawn clients</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QScrollArea" name="scrollArea_statuses">
-          <property name="maximumSize">
-           <size>
-            <width>16777215</width>
-            <height>200</height>
-           </size>
-          </property>
-          <property name="baseSize">
-           <size>
-            <width>0</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">color: rgb(56, 66, 255);</string>
-          </property>
-          <property name="widgetResizable">
-           <bool>true</bool>
-          </property>
-          <widget class="QWidget" name="scrollAreaWidgetContents_statuses">
-           <property name="geometry">
-            <rect>
-             <x>0</x>
-             <y>0</y>
-             <width>676</width>
-             <height>200</height>
-            </rect>
-           </property>
-           <layout class="QVBoxLayout" name="verticalLayout"/>
-          </widget>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="pushButton_receiveCommand">
-          <property name="styleSheet">
-           <string notr="true">border-color: rgb(0, 0, 0);
-background-color: rgb(151, 174, 255);</string>
-          </property>
-          <property name="text">
-           <string>Receive status</string>
-          </property>
-         </widget>
-        </item>
         <item>
          <widget class="QLabel" name="label_log">
           <property name="minimumSize">
@@ -115,7 +121,7 @@ background-color: rgb(151, 174, 255);</string>
           <property name="maximumSize">
            <size>
             <width>16777215</width>
-            <height>300</height>
+            <height>16777215</height>
            </size>
           </property>
           <property name="font">
@@ -141,40 +147,40 @@ background-color: rgb(151, 174, 255);</string>
           </property>
          </widget>
         </item>
-        <item>
-         <widget class="QComboBox" name="comboBox_selectedLog">
-          <property name="styleSheet">
-           <string notr="true">color: rgb(56, 66, 255);</string>
-          </property>
-          <property name="editable">
-           <bool>false</bool>
-          </property>
-          <property name="currentText">
-           <string>log_curr</string>
-          </property>
-          <property name="placeholderText">
-           <string/>
-          </property>
-          <item>
-           <property name="text">
-            <string>log_curr</string>
-           </property>
-          </item>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="button_saveLog">
-          <property name="styleSheet">
-           <string notr="true">border-color: rgb(0, 0, 0);
-background-color: rgb(151, 174, 255);</string>
-          </property>
-          <property name="text">
-           <string>Save current log</string>
-          </property>
-         </widget>
-        </item>
        </layout>
       </widget>
+     </widget>
+    </item>
+    <item>
+     <widget class="QComboBox" name="comboBox_selectedLog">
+      <property name="styleSheet">
+       <string notr="true">color: rgb(56, 66, 255);</string>
+      </property>
+      <property name="editable">
+       <bool>false</bool>
+      </property>
+      <property name="currentText">
+       <string>log_curr</string>
+      </property>
+      <property name="placeholderText">
+       <string/>
+      </property>
+      <item>
+       <property name="text">
+        <string>log_curr</string>
+       </property>
+      </item>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="button_saveLog">
+      <property name="styleSheet">
+       <string notr="true">border-color: rgb(0, 0, 0);
+background-color: rgb(151, 174, 255);</string>
+      </property>
+      <property name="text">
+       <string>Save current log</string>
+      </property>
      </widget>
     </item>
    </layout>

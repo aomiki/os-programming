@@ -100,7 +100,11 @@ void MainWindow::buttonSpawnClicked()
             continue;
         }
 
-        labels[i] = nullptr;
+        QLabel* status_label = new QLabel("", ui->scrollAreaWidgetContents_statuses);
+        labels[i] = status_label;
+
+        ui->scrollAreaWidgetContents_statuses->layout()->addWidget(status_label);
+        status_label->show();
     }
 
     log((QString)"clients created.");
@@ -170,19 +174,11 @@ void MainWindow::buttonReceiveCommandClicked()
             break;
         case ShredingerStatus::Dead:
             str_status = "dead";
+            clients_num--;
             break;
         default:
             str_status = "uhm";
             break;
-    }
-
-    if (labels[message[0]] == nullptr)
-    {
-        QLabel* status_label = new QLabel("", ui->scrollAreaWidgetContents_statuses);
-        labels[message[0]] = status_label;
-
-        ui->scrollAreaWidgetContents_statuses->layout()->addWidget(status_label);
-        status_label->show();
     }
 
     labels[message[0]]->setText(QString::fromStdString(std::format("client {0} | status: {1}\n", std::to_string(message[0]), str_status)));
